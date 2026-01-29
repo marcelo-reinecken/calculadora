@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Calculadora de Funil - Método Marcelo Reinecken</title>
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --panel:#ffffff;
+      --panel2:#f7f7f8;
+      --border:#e6e6ea;
+
+      --text:#111827;
+      --muted:#6b7280;
+
+      --accent:#374151;     /* cinza escuro (botões e destaque) */
+      --accent2:#9ca3af;    /* cinza médio */
+      --track:#e5e7eb;      /* trilho slider */
+      --thumb:#111827;      /* bolinha slider */
+
+      --goodbg:#e9fff0;     /* verde bem claro (resultado) */
+      --goodborder:#b7f7c7;
+      --goodtext:#0f6a2f;
+
+      --shadow: 0 12px 30px rgba(17,24,39,.08);
+      --radius:16px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .wrap{
+      max-width: 1100px;
+      margin: 28px auto;
+      padding: 0 16px 28px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 12px 10px 18px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    .brand{
+      margin:0;
+      font-weight: 900;
+      letter-spacing: .3px;
+      font-size: 18px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 18px;
+    }
+    @media (max-width: 900px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .panel{
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .panel h2{
+      margin: 0 0 12px;
+      font-size: 13px;
+      letter-spacing:.8px;
+      text-transform: uppercase;
+      color: #111827;
+    }
+
+    .row{
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .row:last-child{ border-bottom: 0; padding-bottom: 2px; }
+
+    .label-line{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .label{
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .value{
+      font-variant-numeric: tabular-nums;
+      font-weight: 900;
+      color: #111827;
+      font-size: 14px;
+    }
+
+    .sub{
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: -6px;
+      margin-bottom: 10px;
+    }
+
+    /* Slider */
+    input[type="range"]{
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      outline: none;
+      background: linear-gradient(to right,
+        var(--accent) 0%,
+        var(--accent) var(--fill, 50%),
+        var(--track) var(--fill, 50%),
+        var(--track) 100%);
+      appearance:none;
+      -webkit-appearance:none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb{
+      -webkit-appearance:none;
+      appearance:none;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #fff;
+      border: 3px solid var(--thumb);
+      box-shadow: 0 8px 18px rgba(0,0,0,.12);
+      cursor: pointer;
+    }
+    input[type="range"]::-moz-range-thumb{
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #fff;
+      border: 3px solid var(--thumb);
+      box-shadow: 0 8px 18px rgba(0,0,0,.12);
+      cursor: pointer;
+    }
+
+    /* Tooltip */
+    .info{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #f3f4f6;
+      color: #111827;
+      font-size: 12px;
+      cursor: help;
+      position: relative;
+      user-select: none;
+    }
+    .info:hover .tip,
+    .info:focus-within .tip{
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .tip{
+      position:absolute;
+      left: 0;
+      top: 26px;
+      width: 280px;
+      padding: 10px 10px;
+      border-radius: 12px;
+      background: #111827;
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: 0 18px 50px rgba(0,0,0,.25);
+      color: rgba(255,255,255,.95);
+      font-size: 12px;
+      line-height: 1.35;
+      opacity: 0;
+      transform: translateY(-6px);
+      pointer-events:none;
+      z-index: 30;
+    }
+    .tip b{ color: #fff; }
+
+    /* Results */
+    .cards{
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .card{
+      background: #fafafa;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap: 12px;
+    }
+    .card .k{
+      font-size: 13px;
+      color: #111827;
+      font-weight: 800;
+    }
+    .card .v{
+      font-variant-numeric: tabular-nums;
+      font-size: 16px;
+      font-weight: 900;
+      color: #111827;
+    }
+
+    /* Caixa do resultado (verde bem claro) */
+    .card.good{
+      background: var(--goodbg);
+      border-color: var(--goodborder);
+    }
+    .card.good .k{ color: var(--goodtext); }
+    .card.good .v{ color: var(--goodtext); }
+
+    .note{
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 14px;
+      background: #f9fafb;
+      border: 1px dashed var(--border);
+      color: #374151;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .btns{
+      display:flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .btn{
+      border: 1px solid var(--border);
+      background: #f3f4f6;
+      color: #111827;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .btn:hover{ background:#e5e7eb; }
+    .btn.primary{
+      background: #374151;
+      color: #fff;
+      border-color: #374151;
+    }
+    .btn.primary:hover{ background:#111827; }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <h1 class="brand">Método Marcelo Reinecken</h1>
+    </header>
+
+    <div class="grid">
+      <!-- ESQUERDA -->
+      <section class="panel">
+        <h2>Parâmetros</h2>
+
+        <!-- Investimento -->
+        <div class="row">
+          <div class="label-line">
+            <div class="label">Investimento (R$)</div>
+            <div class="value" id="vInvest">R$ 1.000</div>
+          </div>
+          <input id="invest" type="range" min="1000" max="30000" step="1" value="1000" />
+          <div class="sub">De 1.000 a 30.000 (de 1 em 1)</div>
+        </div>
+
+        <!-- Custo por lead -->
+        <div class="row">
+          <div class="label-line">
+            <div class="label">Custo por lead (R$)</div>
+            <div class="value" id="vCpl">R$ 10</div>
+          </div>
+          <input id="cpl" type="range" min="1" max="50" step="1" value="10" />
+          <div class="sub">De 1 a 50 (de 1 em 1)</div>
+        </div>
+
+        <!-- Taxa de agendamento -->
+        <div class="row">
+          <div class="label-line">
+            <div class="label">
+              <span class="info" tabindex="0">i
+                <span class="tip">
+                  <b>Taxa de agendamento</b><br/>
+                  % de leads que viram agendamentos.<br/>
+                  Padrão sugerido: <b>35%</b>.
+                </span>
+              </span>
+              Taxa de agendamento (%)
+            </div>
+            <div class="value" id="vAg">35%</div>
+          </div>
+          <input id="ag" type="range" min="0" max="100" step="1" value="35" />
+          <div class="sub">De 0% a 100% (de 1 em 1)</div>
+        </div>
+
+        <!-- Taxa de comparecimento -->
+        <div class="row">
+          <div class="label-line">
+            <div class="label">
+              <span class="info" tabindex="0">i
+                <span class="tip">
+                  <b>Taxa de comparecimento</b><br/>
+                  % de agendamentos que comparecem.<br/>
+                  Padrão sugerido: <b>50%</b>.
+                </span>
+              </span>
+              Taxa de comparecimento (%)
+            </div>
+            <div class="value" id="vShow">50%</div>
+          </div>
+          <input id="show" type="range" min="0" max="100" step="1" value="50" />
+          <div class="sub">De 0% a 100% (de 1 em 1)</div>
+        </div>
+
+        <!-- Taxa de fechamento -->
+        <div class="row">
+          <div class="label-line">
+            <div class="label">
+              <span class="info" tabindex="0">i
+                <span class="tip">
+                  <b>Taxa de fechamento</b><br/>
+                  % de comparecimentos que viram vendas.<br/>
+                  Padrão sugerido: <b>35%</b>.
+                </span>
+              </span>
+              Taxa de fechamento (%)
+            </div>
+            <div class="value" id="vClose">35%</div>
+          </div>
+          <input id="close" type="range" min="0" max="100" step="1" value="35" />
+          <div class="sub">De 0% a 100% (de 1 em 1)</div>
+        </div>
+
+        <!-- Ticket -->
+        <div class="row">
+          <div class="label-line">
+            <div class="label">Ticket médio da festa (R$)</div>
+            <div class="value" id="vTicket">R$ 5.000</div>
+          </div>
+          <input id="ticket" type="range" min="5000" max="200000" step="1" value="5000" />
+          <div class="sub">De 5.000 a 200.000 (de 1 em 1)</div>
+        </div>
+
+        <div class="btns">
+          <button class="btn" id="btnReset" type="button">Resetar</button>
+          <button class="btn primary" id="btnCopiar" type="button">Copiar resultados</button>
+        </div>
+
+        <div class="note">
+          <b>Como calcula:</b><br/>
+          Leads = Investimento ÷ CPL<br/>
+          Agendamentos = Leads × Taxa de Agendamento<br/>
+          Comparecimentos = Agendamentos × Taxa de Comparecimento<br/>
+          Vendas = Comparecimentos × Taxa de Fechamento<br/>
+          Faturamento = Vendas × Ticket<br/>
+          Retorno de investimento = Faturamento ÷ Investimento
+        </div>
+      </section>
+
+      <!-- DIREITA -->
+      <aside class="panel">
+        <h2>Resultado mensal</h2>
+
+        <div class="cards">
+          <div class="card good">
+            <div class="k">Faturamento</div>
+            <div class="v" id="rFat">R$ 0</div>
+          </div>
+
+          <div class="card">
+            <div class="k">Número de vendas</div>
+            <div class="v" id="rVendas">0</div>
+          </div>
+
+          <div class="card">
+            <div class="k">Retorno de investimento</div>
+            <div class="v" id="rRoi">0,00</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const el = {
+      invest: document.getElementById('invest'),
+      cpl: document.getElementById('cpl'),
+      ag: document.getElementById('ag'),
+      show: document.getElementById('show'),
+      close: document.getElementById('close'),
+      ticket: document.getElementById('ticket'),
+
+      vInvest: document.getElementById('vInvest'),
+      vCpl: document.getElementById('vCpl'),
+      vAg: document.getElementById('vAg'),
+      vShow: document.getElementById('vShow'),
+      vClose: document.getElementById('vClose'),
+      vTicket: document.getElementById('vTicket'),
+
+      rFat: document.getElementById('rFat'),
+      rVendas: document.getElementById('rVendas'),
+      rRoi: document.getElementById('rRoi'),
+
+      btnReset: document.getElementById('btnReset'),
+      btnCopiar: document.getElementById('btnCopiar')
+    };
+
+    const brl = new Intl.NumberFormat('pt-BR', { style:'currency', currency:'BRL', maximumFractionDigits: 0 });
+    const num2 = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    function setFill(rangeEl){
+      const min = Number(rangeEl.min);
+      const max = Number(rangeEl.max);
+      const val = Number(rangeEl.value);
+      const pct = ((val - min) / (max - min)) * 100;
+      rangeEl.style.setProperty('--fill', pct.toFixed(2) + '%');
+    }
+
+    function read(){
+      const invest = Number(el.invest.value);
+      const cpl = Number(el.cpl.value);
+      const ag = Number(el.ag.value) / 100;
+      const show = Number(el.show.value) / 100;
+      const close = Number(el.close.value) / 100;
+      const ticket = Number(el.ticket.value);
+      return { invest, cpl, ag, show, close, ticket };
+    }
+
+    function calc(){
+      const { invest, cpl, ag, show, close, ticket } = read();
+
+      // valores exibidos
+      el.vInvest.textContent = brl.format(invest);
+      el.vCpl.textContent = brl.format(cpl);
+      el.vAg.textContent = Math.round(ag * 100) + '%';
+      el.vShow.textContent = Math.round(show * 100) + '%';
+      el.vClose.textContent = Math.round(close * 100) + '%';
+      el.vTicket.textContent = brl.format(ticket);
+
+      // funil
+      const leads = (cpl <= 0) ? 0 : (invest / cpl);
+      const agendamentos = leads * ag;
+      const comparecimentos = agendamentos * show;
+      const vendas = comparecimentos * close;
+
+      const faturamento = vendas * ticket;
+      const roi = (invest <= 0) ? 0 : (faturamento / invest);
+
+      // resultados
+      el.rFat.textContent = brl.format(Math.round(faturamento));
+      el.rVendas.textContent = String(Math.round(vendas));
+      el.rRoi.textContent = num2.format(roi);
+
+      // fills
+      [el.invest, el.cpl, el.ag, el.show, el.close, el.ticket].forEach(setFill);
+    }
+
+    function reset(){
+      el.invest.value = 1000;
+      el.cpl.value = 10;
+      el.ag.value = 35;
+      el.show.value = 50;
+      el.close.value = 35;
+      el.ticket.value = 5000;
+      calc();
+    }
+
+    async function copiarResultados(){
+      const texto =
+`Método Marcelo Reinecken - Resultado Mensal
+Faturamento: ${el.rFat.textContent}
+Número de vendas: ${el.rVendas.textContent}
+Retorno de investimento: ${el.rRoi.textContent}`;
+      try{
+        await navigator.clipboard.writeText(texto);
+        el.btnCopiar.textContent = "Copiado!";
+        setTimeout(() => el.btnCopiar.textContent = "Copiar resultados", 1200);
+      }catch(e){
+        alert("Não consegui copiar automaticamente. Selecione e copie manualmente:\\n\\n" + texto);
+      }
+    }
+
+    // listeners
+    [el.invest, el.cpl, el.ag, el.show, el.close, el.ticket].forEach((r) => {
+      r.addEventListener('input', calc);
+      setFill(r);
+    });
+
+    el.btnReset.addEventListener('click', reset);
+    el.btnCopiar.addEventListener('click', copiarResultados);
+
+    calc();
+  </script>
+</body>
+</html>
