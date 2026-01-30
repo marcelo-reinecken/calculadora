@@ -342,11 +342,24 @@
             <div class="label">Ticket médio da festa (R$)</div>
             <div class="value" id="vTicket">R$ 5.000</div>
           </div>
-          <input id="ticket" type="range" min="5000" max="200000" step="5000" value="5000" />
+          <input id="ticket" type="range" min="5000" max="200000" step="1" value="5000" />
         </div>
 
-    
-     
+        <div class="btns">
+          <button class="btn" id="btnReset" type="button">Resetar</button>
+          <button class="btn primary" id="btnCopiar" type="button">Copiar resultados</button>
+        </div>
+
+        <div class="note">
+          <b>Como calcula:</b><br/>
+          Leads = Investimento ÷ CPL<br/>
+          Agendamentos = Leads × Taxa de Agendamento<br/>
+          Comparecimentos = Agendamentos × Taxa de Comparecimento<br/>
+          Vendas = Comparecimentos × Taxa de Fechamento<br/>
+          Faturamento = Vendas × Ticket<br/>
+          Retorno de investimento = Faturamento ÷ Investimento
+        </div>
+      </section>
 
       <aside class="panel">
         <h2>Resultado mensal</h2>
