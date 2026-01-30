@@ -3,14 +3,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Calculadora - Método Marcelo Reinecken</title>
+  <title>Calculadora de Funil - Método Marcelo Reinecken</title>
 
   <style>
     :root{
       --bg:#ffffff;
       --panel:#ffffff;
-      --border:#e5e7eb;
+      --border:#e6e6ea;
+
       --text:#111827;
+      --muted:#6b7280;
+
       --accent:#374151;
       --track:#e5e7eb;
       --thumb:#111827;
@@ -19,229 +22,405 @@
       --goodborder:#b7f7c7;
       --goodtext:#0f6a2f;
 
+      --shadow: 0 12px 30px rgba(17,24,39,.08);
       --radius:16px;
-      --shadow:0 12px 30px rgba(0,0,0,.08);
     }
 
-    *{box-sizing:border-box}
+    *{ box-sizing:border-box; }
     body{
       margin:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      background:var(--bg);
-      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: var(--bg);
+      color: var(--text);
     }
 
     .wrap{
-      max-width:1100px;
-      margin:28px auto;
-      padding:0 16px 32px;
+      max-width: 1100px;
+      margin: 28px auto;
+      padding: 0 16px 28px;
     }
 
-    header{
-      text-align:center;
-      padding:16px 0;
-      border-bottom:1px solid var(--border);
-      margin-bottom:20px;
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 12px 10px 18px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
     }
 
-    h1{
+    .brand{
       margin:0;
-      font-size:18px;
-      font-weight:900;
+      font-weight: 900;
+      letter-spacing: .3px;
+      font-size: 18px;
     }
 
     .grid{
       display:grid;
-      grid-template-columns:1.1fr .9fr;
-      gap:18px;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 18px;
     }
-
-    @media(max-width:900px){
-      .grid{grid-template-columns:1fr}
+    @media (max-width: 900px){
+      .grid{ grid-template-columns: 1fr; }
     }
 
     .panel{
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      padding:18px;
-      box-shadow:var(--shadow);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
     }
 
-    h2{
-      margin:0 0 14px;
-      font-size:13px;
+    .panel h2{
+      margin: 0 0 12px;
+      font-size: 13px;
       letter-spacing:.8px;
-      text-transform:uppercase;
+      text-transform: uppercase;
+      color: #111827;
     }
 
     .row{
-      padding:12px 0;
-      border-bottom:1px solid var(--border);
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
     }
+    .row:last-child{ border-bottom: 0; padding-bottom: 2px; }
 
-    .row:last-child{border-bottom:0}
+    .label-line{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
 
     .label{
       display:flex;
-      justify-content:space-between;
-      font-weight:700;
-      margin-bottom:8px;
+      align-items:center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #111827;
     }
 
-    input[type=range]{
-      width:100%;
-      height:8px;
-      border-radius:999px;
-      background:linear-gradient(
-        to right,
+    .value{
+      font-variant-numeric: tabular-nums;
+      font-weight: 900;
+      color: #111827;
+      font-size: 14px;
+    }
+
+    input[type="range"]{
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      outline: none;
+      background: linear-gradient(to right,
         var(--accent) 0%,
-        var(--accent) var(--fill,50%),
-        var(--track) var(--fill,50%),
-        var(--track) 100%
-      );
+        var(--accent) var(--fill, 50%),
+        var(--track) var(--fill, 50%),
+        var(--track) 100%);
       appearance:none;
+      -webkit-appearance:none;
     }
 
-    input[type=range]::-webkit-slider-thumb{
+    input[type="range"]::-webkit-slider-thumb{
+      -webkit-appearance:none;
       appearance:none;
-      width:18px;
-      height:18px;
-      border-radius:50%;
-      background:#fff;
-      border:3px solid var(--thumb);
-      cursor:pointer;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #fff;
+      border: 3px solid var(--thumb);
+      box-shadow: 0 8px 18px rgba(0,0,0,.12);
+      cursor: pointer;
     }
+    input[type="range"]::-moz-range-thumb{
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #fff;
+      border: 3px solid var(--thumb);
+      box-shadow: 0 8px 18px rgba(0,0,0,.12);
+      cursor: pointer;
+    }
+
+    .info{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #f3f4f6;
+      color: #111827;
+      font-size: 12px;
+      cursor: help;
+      position: relative;
+      user-select: none;
+    }
+    .info:hover .tip,
+    .info:focus-within .tip{
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .tip{
+      position:absolute;
+      left: 0;
+      top: 26px;
+      width: 280px;
+      padding: 10px 10px;
+      border-radius: 12px;
+      background: #111827;
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: 0 18px 50px rgba(0,0,0,.25);
+      color: rgba(255,255,255,.95);
+      font-size: 12px;
+      line-height: 1.35;
+      opacity: 0;
+      transform: translateY(-6px);
+      pointer-events:none;
+      z-index: 30;
+    }
+    .tip b{ color: #fff; }
 
     .cards{
       display:flex;
       flex-direction:column;
-      gap:12px;
+      gap: 12px;
+      margin-top: 8px;
     }
 
     .card{
+      background: #fafafa;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
       display:flex;
       justify-content:space-between;
-      padding:14px;
-      border-radius:14px;
-      border:1px solid var(--border);
-      font-weight:800;
-      background:#fafafa;
+      align-items:center;
+      gap: 12px;
+    }
+    .card .k{
+      font-size: 13px;
+      color: #111827;
+      font-weight: 800;
+    }
+    .card .v{
+      font-variant-numeric: tabular-nums;
+      font-size: 16px;
+      font-weight: 900;
+      color: #111827;
     }
 
     .card.good{
-      background:var(--goodbg);
-      border-color:var(--goodborder);
-      color:var(--goodtext);
+      background: var(--goodbg);
+      border-color: var(--goodborder);
     }
+    .card.good .k{ color: var(--goodtext); }
+    .card.good .v{ color: var(--goodtext); }
   </style>
 </head>
 
 <body>
-<div class="wrap">
-  <header>
-    <h1>Método Marcelo Reinecken</h1>
-  </header>
+  <div class="wrap">
+    <header class="topbar">
+      <h1 class="brand">Método Marcelo Reinecken</h1>
+    </header>
 
-  <div class="grid">
-    <!-- PARÂMETROS -->
-    <section class="panel">
-      <h2>Parâmetros</h2>
+    <div class="grid">
+      <section class="panel">
+        <h2>Parâmetros</h2>
 
-      <div class="row">
-        <div class="label"><span>Investimento (R$)</span><span id="vInvest"></span></div>
-        <input id="invest" type="range" min="1000" max="30000" step="1000" value="1000">
-      </div>
-
-      <div class="row">
-        <div class="label"><span>Custo por lead (R$)</span><span id="vCpl"></span></div>
-        <input id="cpl" type="range" min="1" max="50" step="1" value="10">
-      </div>
-
-      <div class="row">
-        <div class="label"><span>Taxa de agendamento (%)</span><span id="vAg"></span></div>
-        <input id="ag" type="range" min="0" max="100" step="1" value="35">
-      </div>
-
-      <div class="row">
-        <div class="label"><span>Taxa de comparecimento (%)</span><span id="vShow"></span></div>
-        <input id="show" type="range" min="0" max="100" step="1" value="50">
-      </div>
-
-      <div class="row">
-        <div class="label"><span>Taxa de fechamento (%)</span><span id="vClose"></span></div>
-        <input id="close" type="range" min="0" max="100" step="1" value="35">
-      </div>
-
-      <div class="row">
-        <div class="label"><span>Ticket médio da festa (R$)</span><span id="vTicket"></span></div>
-        <input id="ticket" type="range" min="5000" max="200000" step="1" value="5000">
-      </div>
-    </section>
-
-    <!-- RESULTADOS -->
-    <aside class="panel">
-      <h2>Resultado mensal</h2>
-
-      <div class="cards">
-        <div class="card good">
-          <span>Faturamento</span>
-          <span id="fat"></span>
+        <div class="row">
+          <div class="label-line">
+            <div class="label">Investimento (R$)</div>
+            <div class="value" id="vInvest">R$ 1.000</div>
+          </div>
+          <input id="invest" type="range" min="1000" max="30000" step="1000" value="1000" />
         </div>
 
-        <div class="card">
-          <span>Número de vendas</span>
-          <span id="sales"></span>
+        <div class="row">
+          <div class="label-line">
+            <div class="label">Custo por lead (R$)</div>
+            <div class="value" id="vCpl">R$ 10</div>
+          </div>
+          <input id="cpl" type="range" min="1" max="50" step="1" value="10" />
         </div>
 
-        <div class="card">
-          <span>Retorno de investimento</span>
-          <span id="roi"></span>
+        <div class="row">
+          <div class="label-line">
+            <div class="label">
+              <span class="info" tabindex="0">i
+                <span class="tip">
+                  <b>Taxa de agendamento</b><br/>
+                  % de leads que viram agendamentos.<br/>
+                  Padrão sugerido: <b>35%</b>.
+                </span>
+              </span>
+              Taxa de agendamento (%)
+            </div>
+            <div class="value" id="vAg">35%</div>
+          </div>
+          <input id="ag" type="range" min="0" max="100" step="1" value="35" />
         </div>
-      </div>
-    </aside>
+
+        <div class="row">
+          <div class="label-line">
+            <div class="label">
+              <span class="info" tabindex="0">i
+                <span class="tip">
+                  <b>Taxa de comparecimento</b><br/>
+                  % de agendamentos que comparecem.<br/>
+                  Padrão sugerido: <b>50%</b>.
+                </span>
+              </span>
+              Taxa de comparecimento (%)
+            </div>
+            <div class="value" id="vShow">50%</div>
+          </div>
+          <input id="show" type="range" min="0" max="100" step="1" value="50" />
+        </div>
+
+        <div class="row">
+          <div class="label-line">
+            <div class="label">
+              <span class="info" tabindex="0">i
+                <span class="tip">
+                  <b>Taxa de fechamento</b><br/>
+                  % de comparecimentos que viram vendas.<br/>
+                  Padrão sugerido: <b>35%</b>.
+                </span>
+              </span>
+              Taxa de fechamento (%)
+            </div>
+            <div class="value" id="vClose">35%</div>
+          </div>
+          <input id="close" type="range" min="0" max="100" step="1" value="35" />
+        </div>
+
+        <div class="row">
+          <div class="label-line">
+            <div class="label">Ticket médio da festa (R$)</div>
+            <div class="value" id="vTicket">R$ 5.000</div>
+          </div>
+          <input id="ticket" type="range" min="5000" max="200000" step="5000" value="5000" />
+        </div>
+      </section>
+
+      <aside class="panel">
+        <h2>Resultado mensal</h2>
+
+        <div class="cards">
+          <div class="card good">
+            <div class="k">Faturamento</div>
+            <div class="v" id="rFat">R$ 0</div>
+          </div>
+
+          <div class="card">
+            <div class="k">Número de vendas</div>
+            <div class="v" id="rVendas">0</div>
+          </div>
+
+          <div class="card">
+            <div class="k">Retorno de investimento</div>
+            <div class="v" id="rRoi">0,00</div>
+          </div>
+        </div>
+      </aside>
+    </div>
   </div>
-</div>
 
-<script>
-  const f = new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});
-  const d = new Intl.NumberFormat('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  <script>
+    "use strict";
 
-  function fill(r){
-    const p=(r.value-r.min)/(r.max-r.min)*100;
-    r.style.setProperty('--fill',p+'%');
-  }
+    const el = {
+      invest: document.getElementById('invest'),
+      cpl: document.getElementById('cpl'),
+      ag: document.getElementById('ag'),
+      show: document.getElementById('show'),
+      closeRate: document.getElementById('close'),
+      ticket: document.getElementById('ticket'),
 
-  function calc(){
-    const invest=+investEl.value;
-    const cpl=+cplEl.value;
-    const ag=+agEl.value/100;
-    const show=+showEl.value/100;
-    const close=+closeEl.value/100;
-    const ticket=+ticketEl.value;
+      vInvest: document.getElementById('vInvest'),
+      vCpl: document.getElementById('vCpl'),
+      vAg: document.getElementById('vAg'),
+      vShow: document.getElementById('vShow'),
+      vClose: document.getElementById('vClose'),
+      vTicket: document.getElementById('vTicket'),
 
-    const leads = cpl>0 ? invest/cpl : 0;
-    const vendas = Math.floor(leads*ag*show*close);
-    const faturamento = vendas*ticket;
-    const roi = invest>0 ? faturamento/invest : 0;
+      rFat: document.getElementById('rFat'),
+      rVendas: document.getElementById('rVendas'),
+      rRoi: document.getElementById('rRoi')
+    };
 
-    vInvest.textContent=f.format(invest);
-    vCpl.textContent=f.format(cpl);
-    vAg.textContent=Math.round(ag*100)+'%';
-    vShow.textContent=Math.round(show*100)+'%';
-    vClose.textContent=Math.round(close*100)+'%';
-    vTicket.textContent=f.format(ticket);
+    const brl0 = new Intl.NumberFormat('pt-BR', { style:'currency', currency:'BRL', maximumFractionDigits: 0 });
+    const num2 = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-    fat.textContent=f.format(faturamento);
-    sales.textContent=vendas;
-    roi.textContent=d.format(roi);
+    function toNum(x){
+      const n = Number(x);
+      return Number.isFinite(n) ? n : 0;
+    }
 
-    document.querySelectorAll('input[type=range]').forEach(fill);
-  }
+    function setFill(rangeEl){
+      const min = toNum(rangeEl.min);
+      const max = toNum(rangeEl.max);
+      const val = toNum(rangeEl.value);
+      const pct = (max === min) ? 0 : ((val - min) / (max - min)) * 100;
+      rangeEl.style.setProperty('--fill', pct.toFixed(2) + '%');
+    }
 
-  const investEl=invest,cplEl=cpl,agEl=ag,showEl=show,closeEl=close,ticketEl=ticket;
-  document.querySelectorAll('input[type=range]').forEach(r=>r.addEventListener('input',calc));
-  calc();
-</script>
+    function read(){
+      return {
+        invest: toNum(el.invest.value),
+        cpl: toNum(el.cpl.value),
+        ag: toNum(el.ag.value) / 100,
+        show: toNum(el.show.value) / 100,
+        close: toNum(el.closeRate.value) / 100,
+        ticket: toNum(el.ticket.value)
+      };
+    }
+
+    function calc(){
+      const d = read();
+
+      // valores exibidos
+      el.vInvest.textContent = brl0.format(d.invest);
+      el.vCpl.textContent = brl0.format(d.cpl);
+      el.vAg.textContent = Math.round(d.ag * 100) + '%';
+      el.vShow.textContent = Math.round(d.show * 100) + '%';
+      el.vClose.textContent = Math.round(d.close * 100) + '%';
+      el.vTicket.textContent = brl0.format(d.ticket);
+
+      // funil (decimais)
+      const leads = (d.cpl > 0) ? (d.invest / d.cpl) : 0;
+      const agendamentos = leads * d.ag;
+      const comparecimentos = agendamentos * d.show;
+      const vendasReais = comparecimentos * d.close;
+
+      // regra: 0,673 venda = 0 vendas (arredonda pra baixo)
+      const vendas = Math.max(0, Math.floor(vendasReais));
+
+      // consistência total
+      const faturamento = vendas * d.ticket;
+      const roi = (d.invest > 0) ? (faturamento / d.invest) : 0;
+
+      el.rFat.textContent = brl0.format(faturamento);
+      el.rVendas.textContent = String(vendas);
+      el.rRoi.textContent = num2.format(roi);
+
+      [el.invest, el.cpl, el.ag, el.show, el.closeRate, el.ticket].forEach(setFill);
+    }
+
+    [el.invest, el.cpl, el.ag, el.show, el.closeRate, el.ticket].forEach((r) => {
+      r.addEventListener('input', calc);
+      setFill(r);
+    });
+
+    calc();
+  </script>
 </body>
 </html>
